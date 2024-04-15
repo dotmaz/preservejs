@@ -1,6 +1,6 @@
 (function () {
   // IIEF to prevent leaking into global namespace
-  const VERSION = "v1.0";
+  const VERSION = "v0.2";
   const DOCUMENT = window?.document;
 
   function Preserve() {
