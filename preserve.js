@@ -9,8 +9,9 @@
       window.localStorage.getItem("preservejs-formdata") || "{}"
     );
 
-    this.updateFormData = function (key, value) {
-      this.formData[key] = value;
+    this.updateFormData = function (key, value, bucket) {
+      if (!this.formData[bucket]) this.formData[bucket] = {};
+      this.formData[bucket][key] = value;
       window.localStorage.setItem(
         "preservejs-formdata",
         JSON.stringify(this.formData)
@@ -23,12 +24,18 @@
         return;
       }
 
-      formsOnPage.forEach((formElement) => {
+      // Get URL path for indexing
+
+      const urlHost = window?.location.host;
+      const urlPathname = window?.location.pathname;
+
+      formsOnPage.forEach((formElement, formIdx) => {
+        const bucket = `${urlHost}+${urlPathname}+${formIdx}`;
         formElement.addEventListener("input", (event) => {
-          this.updateFormData(event.target.name, event.target.value);
+          this.updateFormData(event.target.name, event.target.value, bucket);
         });
         formElement.addEventListener("change", (event) => {
-          this.updateFormData(event.target.name, event.target.value);
+          this.updateFormData(event.target.name, event.target.value, bucket);
         });
 
         const formInputElements = [
@@ -36,7 +43,7 @@
         ];
 
         formInputElements.forEach((formInputElement) => {
-          const persistedValue = this.formData[formInputElement.name];
+          const persistedValue = this.formData[bucket]?.[formInputElement.name];
           if (
             persistedValue !== undefined &&
             persistedValue != null &&
@@ -59,4 +66,3 @@
 
   window.Preserve = Preserve;
 })();
-
